@@ -23,7 +23,7 @@ module Steppable
   def valid_move?(pos)
     row = pos[0]
     col = pos[1]
-    if row < 0 || row > 7 || col < 0 || col > 7
+    if !board.in_bound?(pos)
       return false
     elsif @board.grid[row][col].color == self.color
       return false

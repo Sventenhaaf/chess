@@ -3,9 +3,9 @@ require_relative 'slidable'
 require_relative 'steppable'
 require_relative 'pawnable'
 
-
 class Piece
-  attr_reader :color, :position
+  attr_accessor :position
+  attr_reader :color, :board
 
   def initialize(color, board, position)
     @color = color
@@ -19,6 +19,25 @@ class Piece
 
   def to_s
     " x "
+  end
+
+  def valid_moves
+    # Each possible moves
+      # duped board
+      # select !(in check)
+    # end
+
+    self.possible_moves.reject do |move|
+      duped_board = board.deep_dup
+      duped_board.move_piece!(@position, move)
+      duped_board.in_check?(@color)
+    end
+
+
+  end
+
+  def dup(duped_board)
+    self.class.new(self.color, duped_board, self.position.dup)
   end
 
 
@@ -35,56 +54,58 @@ class NullPiece
     @color = :n
   end
 
+  def dup(duped_board)
+    NullPiece.new
+  end
+
   def to_s
     "   "
   end
 end
 
 class Pawn < Piece
+  attr_reader :dir, :first_move
 
   def initialize(color, board, position)
     super(color, board, position)
     @first_move = true
+    color == :w ? @dir = 1 : @dir = -1
   end
 
   def possible_moves
-    hor_valid_moves
+    moves = []
+    moves.concat(kill_moves)
+    moves.concat(peaceful_moves)
+    moves.select { |move| board.in_bound?(move) }
   end
 
-
-
-    def king_valid_moves
-      moves(KING_DIRS)
+  def kill_moves
+    result = []
+    [-1, 1].each do |i|
+      check_pos = [position[0] + @dir, position[1] + i]
+      next unless board.in_bound?(check_pos)
+      result << check_pos if board[check_pos].color != @color && !board.empty?(check_pos)
     end
+    result
+  end
 
-    def knight_valid_moves
-      moves(KNIGHT_DIRS)
-    end
-
-    def moves(directions)
-      positions = []
-      directions.each do |dir|
-        new_pos = [(position[0] + dir[0]), (position[1] + dir[1])]
-        positions << new_pos if valid_move?(new_pos)
+  def peaceful_moves
+    result = []
+    @first_move ? diffs = [1, 2] : diffs = [1]
+    diffs.each do |i|
+      check_pos = [position[0] + (i * @dir), position[1]]
+      next unless board.in_bound?(check_pos)
+      if board.empty?(check_pos)
+        result << check_pos
+      else
+        break
       end
-      return positions
     end
-
-    def valid_move?(pos)
-      row = pos[0]
-      col = pos[1]
-      if row < 0 || row > 7 || col < 0 || col > 7
-        return false
-      elsif @board.grid[row][col].color == self.color
-        return false
-      end
-      true
-    end
-
-
+    result
+  end
 
   def to_s
-    " p "
+    color == :w ? " \u2659 " : " \u265F "
   end
 end
 
@@ -96,7 +117,7 @@ class Castle < Piece
   end
 
   def to_s
-    " C "
+    color == :w ? " \u2656 " : " \u265C "
   end
 end
 
@@ -108,7 +129,7 @@ class Bishop < Piece
   end
 
   def to_s
-    " B "
+    color == :w ? " \u2657 " : " \u265D "
   end
 end
 
@@ -118,10 +139,11 @@ class Queen < Piece
 
   def possible_moves
     dia_valid_moves + hor_valid_moves
+
   end
 
   def to_s
-    " Q "
+    color == :w ? " \u2655 " : " \u265B "
   end
 end
 
@@ -133,7 +155,7 @@ class King < Piece
   end
 
   def to_s
-    " K "
+    color == :w ? " \u2654 " : " \u265A "
   end
 end
 
@@ -145,6 +167,6 @@ class Knight < Piece
   end
 
   def to_s
-    " k "
+    color == :w ? " \u2658 " : " \u265E "
   end
 end
