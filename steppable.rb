@@ -2,7 +2,6 @@ module Steppable
   KING_DIRS = [[0,1],[1,0],[-1,0],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]
   KNIGHT_DIRS = [[2,1],[1,2],[-1,2],[2,-1],[-2,1],[-2,-1],[-1,-2],[1,-2]]
 
-
   def king_valid_moves
     moves(KING_DIRS)
   end
@@ -30,5 +29,4 @@ module Steppable
     end
     true
   end
-
 end

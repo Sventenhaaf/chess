@@ -2,7 +2,6 @@ module Slidable
   HORIZONTAL_DIRS = [[0,1],[1,0],[-1,0],[0,-1]]
   DIAGONAL_DIRS = [[1,1],[1,-1],[-1,1],[-1,-1]]
 
-
   def hor_valid_moves
     moves(HORIZONTAL_DIRS)
   end
@@ -17,7 +16,8 @@ module Slidable
     directions.each do |dir|
       positions.concat(explore_dir(dir))
     end
-    return positions
+
+    positions
   end
 
   def explore_dir(dir)
@@ -39,18 +39,10 @@ module Slidable
 
   def opponent_hit(position)
     piece = @board.grid[position[0]][position[1]]
-    opponent_hit = true if piece.color != self.color && piece.color != :n
+    piece.color != self.color && piece.color != :n
   end
 
   def valid_move?(pos)
-    row = pos[0]
-    col = pos[1]
-    if !board.in_bound?(pos)
-      return false
-    elsif @board.grid[row][col].color == self.color
-      return false
-    end
-    true
+    board.in_bound?(pos) && @board[pos].color != color
   end
-
 end

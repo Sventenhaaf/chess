@@ -41,7 +41,6 @@ module Cursorable
     when :ctrl_c
       exit 0
     when :return, :space
-      selected
       @cursor_pos
     when :left, :right, :up, :down
       update_pos(MOVES[key])
@@ -49,11 +48,6 @@ module Cursorable
     else
       puts key
     end
-  end
-
-  def selected
-    @selected == true ? @selected = false : @selected = true
-    # only select squares with piece on them (right color)
   end
 
   def read_char

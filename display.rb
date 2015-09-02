@@ -1,5 +1,5 @@
-require "colorize"
 require_relative "cursorable"
+require "colorize"
 
 class Display
   include Cursorable
@@ -7,12 +7,16 @@ class Display
   def initialize(board)
     @board = board
     @cursor_pos = [0, 0]
-    @selected = false
   end
 
+  def render
+    system("clear")
+    puts "Fill the grid!"
+    puts "Arrow keys, WASD, or vim to move, space or enter to confirm."
+    build_grid.each { |row| puts row.join }
+  end
 
-
-
+  private
   def build_grid
     @board.rows.map.with_index do |row, i|
       build_row(row, i)
@@ -37,10 +41,5 @@ class Display
     { background: bg, color: :white }
   end
 
-  def render
-    system("clear")
-    puts "Fill the grid!"
-    puts "Arrow keys, WASD, or vim to move, space or enter to confirm."
-    build_grid.each { |row| puts row.join }
-  end
+
 end
